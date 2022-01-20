@@ -35,5 +35,8 @@ module.exports = {
       console.log('Invalid token');
     }
 
+    // return the updated request
+    return req;
+
   },
 };
