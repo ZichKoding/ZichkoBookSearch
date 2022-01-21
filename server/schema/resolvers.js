@@ -62,13 +62,25 @@ const resolvers = {
                     { new: true, runValidators: true }
                 );
                 
-                // console.log(updatedUser);
-
                 return updatedUser;
             }
 
             throw new AuthenticationError('You need to be logged in!');
         },
+        // removeBook by the bookId not _id as long as the user is logged in. 
+        removeBook: async (parent, { bookId }, context) => {
+            if (context.user) {
+                const updatedUser = await User.findByIdAndUpdate(
+                    { _id: context.user._id },
+                    { $pull: {savedBooks: { bookId } }},
+                    { new: true }
+                );
+
+                return updatedUser;
+            }
+
+            throw new AuthenticationError('You need to be logged in!');
+        }
     }
 }
 
