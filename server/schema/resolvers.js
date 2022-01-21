@@ -8,8 +8,7 @@ const resolvers = {
         me: async (parents, args, context) => {
             if (context.user) {
                 const userData = await User.findOne({ _id: context.user._id })
-                    .select('-__v -password')
-                    .populate('savedBooks');
+                    .select('-__v -password');
 
                 return userData;
             }
@@ -20,13 +19,11 @@ const resolvers = {
         users: async () => {
             return User.find()
                 .select('-__v -password')
-                .populate('savedBooks');
         },
         // get user by `username`
         user: async (parent, { username }) => {
             return User.findOne({ username })
                 .select('-__v -password')
-                .populate('savedBooks');
         }
     },
 
@@ -57,13 +54,16 @@ const resolvers = {
             return { token, user };
         },
         // saveBook to the user's saveBook array
-        saveBook: async (parent, { book }, context) => {
+        saveBook: async (parent, { input }, context) => {
+            console.log(input);
             if (context.user) {
                 const updatedUser = await User.findByIdAndUpdate(
                     { _id: context.user._id },
-                    { $addToSet: { savedBooks: book }},
-                    { new: true }
-                ).populate('savedBooks');
+                    { $addToSet: {savedBooks:  input }},
+                    { new: true, runValidators: true }
+                );
+                
+                // console.log(updatedUser);
 
                 return updatedUser;
             }
