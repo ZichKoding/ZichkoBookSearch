@@ -55,7 +55,6 @@ const resolvers = {
         },
         // saveBook to the user's saveBook array
         saveBook: async (parent, { input }, context) => {
-            console.log(input);
             if (context.user) {
                 const updatedUser = await User.findByIdAndUpdate(
                     { _id: context.user._id },
