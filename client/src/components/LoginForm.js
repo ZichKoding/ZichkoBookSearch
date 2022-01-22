@@ -12,6 +12,7 @@ const LoginForm = () => {
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
+  // Setup login mutation
   const [login, { error }] = useMutation(LOGIN_USER);
 
   const handleInputChange = (event) => {
@@ -30,12 +31,12 @@ const LoginForm = () => {
     }
 
     try {
+      // get data from login form and send to GraphQL
       const { data } = await login({
         variables: { ...userFormData }
       });
 
       Auth.login(data.login.token);
-
     } catch (err) {
       console.error(err);
       setShowAlert(true);
