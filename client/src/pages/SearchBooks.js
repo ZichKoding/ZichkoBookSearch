@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { Jumbotron, Container, Col, Form, Button, Card, CardColumns } from 'react-bootstrap';
 
 import Auth from '../utils/auth';
 import { searchGoogleBooks } from '../utils/API';
 import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
 import { SAVE_BOOK } from '../utils/mutations';
+import { QUERY_MY_BOOKS } from '../utils/queries';
 
 const SearchBooks = () => {
   // create state for holding returned google api data
@@ -19,10 +20,34 @@ const SearchBooks = () => {
   // setup mutation 
   const [ saveBook, { error }] = useMutation(SAVE_BOOK);
 
+  // setup query 
+  const { data } = useQuery(QUERY_MY_BOOKS);
+
   // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
   // learn more here: https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
   useEffect(() => {
-    return () => saveBookIds(savedBookIds);
+    return () => {
+
+      // if there is no savedBookIds check user's data and if the user has previous data extract it and add to localStorage for user to pick up where they left off.
+      if (savedBookIds.length === 0 && data?.me.savedBooks.length > 0) {
+        // const userBooks = []
+        const userBookData = data?.me.savedBooks;
+
+        for (let i = 0; i < userBookData?.length; i++) {
+          let userBD = userBookData[i]?.bookId;
+          if (userBD) {
+            // pull user's savedBooks' bookIds and store them in localStorage
+            setSavedBookIds([ ...savedBookIds, userBD]);
+            // userBooks.push(userBD);
+          }
+        }
+
+        // setSavedBookIds(userBooks);
+      }
+
+      saveBookIds(savedBookIds)
+    };
+    // return () => saveBookIds(data.me.savedBooks);
   });
 
   // create method to search for books and set state on form submit
@@ -75,7 +100,7 @@ const SearchBooks = () => {
       // send data for saved book to GraphQL 
       await saveBook({
         variables: { input: bookToSave }
-      });
+      });    
 
       // if book successfully saves to user's account, save book id to state
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
