@@ -30,7 +30,6 @@ const SearchBooks = () => {
 
       // if there is no savedBookIds check user's data and if the user has previous data extract it and add to localStorage for user to pick up where they left off.
       if (savedBookIds.length === 0 && data?.me.savedBooks.length > 0) {
-        // const userBooks = []
         const userBookData = data?.me.savedBooks;
 
         for (let i = 0; i < userBookData?.length; i++) {
@@ -38,16 +37,12 @@ const SearchBooks = () => {
           if (userBD) {
             // pull user's savedBooks' bookIds and store them in localStorage
             setSavedBookIds([ ...savedBookIds, userBD]);
-            // userBooks.push(userBD);
           }
         }
-
-        // setSavedBookIds(userBooks);
       }
 
       saveBookIds(savedBookIds)
     };
-    // return () => saveBookIds(data.me.savedBooks);
   });
 
   // create method to search for books and set state on form submit
